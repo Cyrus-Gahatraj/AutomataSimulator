@@ -26,13 +26,21 @@ public class Automata{
 
         public String toString(){
             StringBuilder sb = new StringBuilder();
-            sb.append(from.getId()).append(" -- { ");
-
+            if (from.accept){
+                sb.append("(").append(from.getId()).append(") -- { ");
+            } else{
+                sb.append(from.getId()).append(" -- { ");
+            }
             for (int i = 0; i < this.label.size(); i++){
                 sb.append(this.label.get(i));
                 if (i < this.label.size() - 1) sb.append(", ");
             }
-            sb.append(" } --> ").append(to.getId());
+            sb.append(" } --> ");
+            if (to.accept){
+                sb.append("(").append(to.getId()).append(")");
+            } else{
+                sb.append(to.getId());
+            }
             return sb.toString();
         }
     }
@@ -40,9 +48,11 @@ public class Automata{
     static class State{
         private final String id;
         private final ArrayList<Edge> edges;
+        boolean accept;
 
         public State(String id){
             this.id = id;
+            this.accept = false;
             this.edges = new ArrayList<>();
         }
 
@@ -104,6 +114,15 @@ public class Automata{
         src.createEdge(dest, label);
     }
 
+    public void accept(String s){
+        State state = findState(s);
+        if (state == null){
+            System.out.println("No given state");
+            return;
+        }
+        state.accept = true;
+    }
+
     public void display(){
         System.out.print("-> ");
         for(State state: this.states){
@@ -113,12 +132,16 @@ public class Automata{
         }
     }
 
+
     public static void main(String[] args){
         Automata m = new Automata("q0");
         m.connect("q0", "q1", new String[]{"0"});
         m.connect("q0", "q1", new String[]{"1"});
         m.connect("q0", "q2", new String[]{"1"});
         m.connect("q1", "q2", new String[]{"1"});
+        m.accept("q2");
+        m.accept("q1");
+
         m.display();
     }
 }
